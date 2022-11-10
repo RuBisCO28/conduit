@@ -1,1 +1,17 @@
-
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/conduit
+    username: mysqler
+    password: password
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    deserialization:
+      UNWRAP_ROOT_VALUE: true
+mybatis:
+  configuration:
+    cache-enabled: true
+    default-statement-timeout: 3000
+    map-underscore-to-camel-case: true
+    use-generated-keys: true
+  type-handlers-package: com.realworld.conduit.infrastructure.mybatis
+  mapper-locations: mapper/*.xml
