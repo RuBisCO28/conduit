@@ -1,1 +1,17 @@
-
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    deserialization:
+      UNWRAP_ROOT_VALUE: true
+mybatis:
+  configuration:
+    cache-enabled: true
+    default-statement-timeout: 3000
+    map-underscore-to-camel-case: true
+    use-generated-keys: true
+  type-handlers-package: com.realworld.conduit.infrastructure.mybatis
+  mapper-locations: mapper/*.xml
