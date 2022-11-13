@@ -7,6 +7,9 @@ spring:
   jackson:
     deserialization:
       UNWRAP_ROOT_VALUE: true
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  sessionTime: 86400
 mybatis:
   configuration:
     cache-enabled: true
