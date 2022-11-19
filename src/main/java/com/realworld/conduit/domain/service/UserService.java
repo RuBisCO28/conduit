@@ -1,6 +1,7 @@
 package com.realworld.conduit.domain.service;
 
 import com.realworld.conduit.application.resource.user.NewUserRequest;
+import com.realworld.conduit.application.resource.user.UpdateUserRequest;
 import com.realworld.conduit.domain.exception.InvalidAuthenticationException;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.repository.UserRepository;
@@ -34,5 +35,23 @@ public class UserService {
       throw new InvalidAuthenticationException();
     }
     return user;
+  }
+
+  public User findById(String id) {
+    final var user = userRepository.findById(id);
+    if (user == null) {
+      throw new InvalidAuthenticationException();
+    }
+    return user;
+  }
+
+  public void updateProfile(User user, UpdateUserRequest request) {
+    user.update(
+      request.getEmail(),
+      request.getUsername(),
+      request.getPassword(),
+      request.getBio(),
+      request.getImage());
+    userRepository.update(user);
   }
 }

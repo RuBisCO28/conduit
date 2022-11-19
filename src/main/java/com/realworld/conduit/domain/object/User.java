@@ -24,4 +24,30 @@ public class User {
     this.bio = bio;
     this.image = image;
   }
+
+  public void update(String email, String username, String password, String bio, String image) {
+    if (!isEmpty(email)) {
+      this.email = email;
+    }
+
+    if (!isEmpty(username)) {
+      this.username = username;
+    }
+
+    if (!isEmpty(password)) {
+      this.password = password;
+    }
+
+    if (!isEmpty(bio)) {
+      this.bio = bio;
+    }
+
+    if (!isEmpty(image)) {
+      this.image = image;
+    }
+  }
+
+  private boolean isEmpty(String value) {
+    return value == null || value.isEmpty();
+  }
 }

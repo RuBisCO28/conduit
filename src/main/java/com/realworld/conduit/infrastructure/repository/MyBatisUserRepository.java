@@ -34,4 +34,16 @@ public class MyBatisUserRepository implements UserRepository {
   public User findByUsername(String username) {
     return userMapper.findByUsername(username);
   }
+
+  @Override
+  @Transactional
+  public User findById(String id) {
+    return userMapper.findById(id);
+  }
+
+  @Override
+  @Transactional
+  public void update(User user) {
+    userMapper.update(user);
+  }
 }
