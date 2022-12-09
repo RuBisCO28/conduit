@@ -10,4 +10,5 @@ public interface UserMapper {
   void insert(@Param("user") User user);
   User findByEmail(@Param("email") String email);
   User findByUsername(@Param("username") String username);
+  void update(@Param("user") User user);
 }
