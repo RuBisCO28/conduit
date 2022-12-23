@@ -13,6 +13,6 @@ public class DuplicatedUsernameValidator implements
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    return (value == null || value.isEmpty()) || userRepository.findByUsername(value) == null;
+    return (value == null || value.isEmpty()) || userRepository.findByName(value) == null;
   }
 }
