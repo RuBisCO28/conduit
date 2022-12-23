@@ -3,8 +3,10 @@ package com.realworld.conduit.domain.service;
 import com.realworld.conduit.application.resource.user.NewUserRequest;
 import com.realworld.conduit.application.resource.user.UpdateUserRequest;
 import com.realworld.conduit.domain.exception.InvalidAuthenticationException;
+import com.realworld.conduit.domain.object.FollowRelation;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.repository.UserRepository;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +47,14 @@ public class UserService {
     return user;
   }
 
+  public User findByName(String name) {
+    final var user = userRepository.findByName(name);
+    if (user == null) {
+      throw new InvalidAuthenticationException();
+    }
+    return user;
+  }
+
   public void updateProfile(User user, UpdateUserRequest request) {
     user.update(
       request.getEmail(),
@@ -53,5 +63,19 @@ public class UserService {
       request.getBio(),
       request.getImage());
     userRepository.update(user);
+  }
+
+  public void saveRelation(FollowRelation followRelation) {
+    if (!findRelation(followRelation.getUserId(), followRelation.getTargetId()).isPresent()) {
+      userRepository.saveRelation(followRelation);
+    }
+  }
+
+  public Optional<FollowRelation> findRelation(String userId, String targetUserId) {
+    return Optional.ofNullable(userRepository.findRelation(userId, targetUserId));
+  }
+
+  public void removeRelation(FollowRelation followRelation) {
+    userRepository.deleteRelation(followRelation);
   }
 }

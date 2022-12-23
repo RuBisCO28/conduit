@@ -3,23 +3,14 @@
   PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.realworld.conduit.infrastructure.mybatis.mapper.UserMapper">
-  <resultMap id="user" type="com.realworld.conduit.domain.object.User">
-    <id property="id" column="id" />
-    <result column="username" property="username"/>
-    <result column="email" property="email"/>
-    <result column="password" property="password"/>
-    <result column="bio" property="bio"/>
-    <result column="image" property="image"/>
-  </resultMap>
-
   <select id="findById" resultMap="user">
     select id, username, email, password, bio, image from users where id = #{id}
   </select>
   <select id="findByEmail" resultMap="user">
     select id, username, email, password, bio, image from users where email = #{email}
   </select>
-  <select id="findByUsername" resultMap="user">
-    select * from users where username = #{username}
+  <select id="findByName" resultMap="user">
+    select id, username, email, password, bio, image from users where username = #{name}
   </select>
   <insert id="insert">
     insert into users (id, username, email, password, bio, image) values(
@@ -42,4 +33,31 @@
     </set>
     where id = #{user.id}
   </update>
+  <select id="findRelation" resultMap="follow">
+    SELECT
+    F.user_id followUserId,
+    F.follow_id followTargetId
+    from follows F
+    where F.user_id = #{userId} and F.follow_id = #{targetId}
+  </select>
+  <insert id="saveRelation">
+    insert into follows(user_id, follow_id) values (#{followRelation.userId}, #{followRelation.targetId})
+  </insert>
+  <delete id="deleteRelation">
+    delete from follows where user_id = #{followRelation.userId} and follow_id = #{followRelation.targetId}
+  </delete>
+
+  <resultMap id="user" type="com.realworld.conduit.domain.object.User">
+    <id property="id" column="id" />
+    <result column="username" property="username"/>
+    <result column="email" property="email"/>
+    <result column="password" property="password"/>
+    <result column="bio" property="bio"/>
+    <result column="image" property="image"/>
+  </resultMap>
+
+  <resultMap id="follow" type="com.realworld.conduit.domain.object.FollowRelation">
+    <result column="followUserId" property="userId"/>
+    <result column="followTargetId" property="targetId"/>
+  </resultMap>
 </mapper>
