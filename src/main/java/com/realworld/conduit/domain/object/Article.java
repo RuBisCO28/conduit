@@ -16,6 +16,7 @@ public class Article {
   private String description;
   private String body;
   private List<Tag> tags;
+  private String userId;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -23,13 +24,15 @@ public class Article {
     String title,
     String description,
     String body,
-    List<String> tagList) {
+    List<String> tagList,
+    String userId) {
     this.id = UUID.randomUUID().toString();
     this.slug = toSlug(title);
     this.title = title;
     this.description = description;
     this.body = body;
     this.tags = new HashSet<>(tagList).stream().map(Tag::new).collect(toList());
+    this.userId = userId;
     this.createdAt = LocalDateTime.now();
     this.updatedAt = LocalDateTime.now();
   }

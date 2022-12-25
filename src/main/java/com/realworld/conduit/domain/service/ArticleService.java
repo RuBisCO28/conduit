@@ -6,7 +6,9 @@ import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.ArticleWithSummary;
 import com.realworld.conduit.domain.object.ArticlesWithCount;
 import com.realworld.conduit.domain.object.Page;
+import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.repository.ArticleRepository;
+import com.realworld.conduit.domain.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
@@ -18,14 +20,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ArticleService {
   private final ArticleRepository articleRepository;
+  private final UserRepository userRepository;
 
-  public Article create(@Valid NewArticleRequest request) {
+  public Article create(@Valid NewArticleRequest request, User creator) {
     Article article =
       new Article(
         request.getTitle(),
         request.getDescription(),
         request.getBody(),
-        request.getTagList());
+        request.getTagList(),
+        creator.getId());
     articleRepository.save(article);
     return article;
   }
@@ -39,6 +43,17 @@ public class ArticleService {
     } else {
       final List<ArticleWithSummary> articles = articleRepository.findAllByIds(articleIds);
       return new ArticlesWithCount(articles, articleCount);
+    }
+  }
+
+  public ArticlesWithCount findUserFeed(User user, Page page) {
+    List<String> followdUsers = userRepository.followedUsers(user.getId());
+    if (followdUsers.size() == 0) {
+      return new ArticlesWithCount(new ArrayList<>(), 0);
+    } else {
+      List<ArticleWithSummary> articles = articleRepository.findArticlesOfAuthors(followdUsers, page);
+      final int count = articleRepository.countFeedSize(followdUsers);
+      return new ArticlesWithCount(articles, count);
     }
   }
 }

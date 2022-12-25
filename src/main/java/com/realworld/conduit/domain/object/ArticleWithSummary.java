@@ -1,5 +1,6 @@
 package com.realworld.conduit.domain.object;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,4 +19,6 @@ public class ArticleWithSummary {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private List<String> tagList;
+  @JsonProperty("author")
+  private Profile authorProfile;
 }
