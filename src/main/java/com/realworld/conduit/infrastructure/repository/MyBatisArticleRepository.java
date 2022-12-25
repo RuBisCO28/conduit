@@ -51,4 +51,16 @@ public class MyBatisArticleRepository implements ArticleRepository {
   public List<ArticleWithSummary> findAllByIds(List<String> articleIds) {
     return articleMapper.findAllByIds(articleIds);
   }
+
+  @Override
+  @Transactional
+  public List<ArticleWithSummary> findArticlesOfAuthors(List<String> authors, Page page) {
+    return articleMapper.findArticlesOfAuthors(authors, page);
+  }
+
+  @Override
+  @Transactional
+  public int countFeedSize(List<String> authors) {
+    return articleMapper.countFeedSize(authors);
+  }
 }

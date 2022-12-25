@@ -6,6 +6,7 @@ import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.repository.UserRepository;
 import com.realworld.conduit.infrastructure.mybatis.mapper.FollowMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.UserMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,5 +73,11 @@ public class MyBatisUserRepository implements UserRepository {
   @Transactional
   public void deleteRelation(FollowRelation relation) {
     userMapper.deleteRelation(relation);
+  }
+
+  @Override
+  @Transactional
+  public List<String> followedUsers(String userId) {
+    return userMapper.followedUsers(userId);
   }
 }

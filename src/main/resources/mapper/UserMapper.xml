@@ -46,6 +46,9 @@
   <delete id="deleteRelation">
     delete from follows where user_id = #{followRelation.userId} and follow_id = #{followRelation.targetId}
   </delete>
+  <select id="followedUsers" resultType="java.lang.String">
+    select F.follow_id from follows F where F.user_id = #{userId}
+  </select>
 
   <resultMap id="user" type="com.realworld.conduit.domain.object.User">
     <id property="id" column="id" />

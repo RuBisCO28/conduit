@@ -2,6 +2,7 @@ package com.realworld.conduit.domain.repository;
 
 import com.realworld.conduit.domain.object.FollowRelation;
 import com.realworld.conduit.domain.object.User;
+import java.util.List;
 
 public interface UserRepository {
   void save(User user);
@@ -14,4 +15,5 @@ public interface UserRepository {
   void saveRelation(FollowRelation relation);
   boolean isFollowing(String userId, String targetUserId);
   void deleteRelation(FollowRelation relation);
+  List<String> followedUsers(String userId);
 }

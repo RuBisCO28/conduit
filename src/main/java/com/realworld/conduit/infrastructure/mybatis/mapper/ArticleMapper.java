@@ -16,4 +16,6 @@ public interface ArticleMapper {
     @Param("author") String author);
 
   List<ArticleWithSummary> findAllByIds(@Param("articleIds") List<String> articleIds);
+  List<ArticleWithSummary> findArticlesOfAuthors(@Param("authors") List<String> authors, @Param("page") Page page);
+  int countFeedSize(@Param("authors") List<String> authors);
 }
