@@ -36,6 +36,11 @@
     left join tags T on T.id = AT.tag_id
   </sql>
 
+  <select id="findBySlug" resultMap="ArticleWithSummary">
+    <include refid="selectArticles"/>
+    where A.slug = #{slug}
+  </select>
+
   <insert id="insert">
     insert into articles(id, slug, title, description, body, user_id, created_at, updated_at)
     values(
@@ -48,6 +53,20 @@
     #{article.createdAt},
     #{article.updatedAt})
   </insert>
+
+  <update id="update">
+    update articles set
+    title=#{article.title},
+    body=#{article.body},
+    slug=#{article.slug},
+    description=#{article.description},
+    updated_at=#{article.updatedAt}
+    where id = #{article.id}
+  </update>
+
+  <delete id="delete">
+    delete from articles where id = #{article.id}
+  </delete>
 
   <select id="fetchIdsByQuery" resultMap="articleId">
     <include refid="selectArticleIds" />
@@ -101,6 +120,7 @@
 
   <resultMap id="article" type="com.realworld.conduit.domain.object.Article">
     <id column="id" property="id"/>
+    <result column="userId" property="userId"/>
     <result column="title" property="title"/>
     <result column="slug" property="slug"/>
     <result column="description" property="description"/>

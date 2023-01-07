@@ -12,4 +12,7 @@ public interface ArticleRepository {
   List<ArticleWithSummary> findAllByIds(List<String> articleIds);
   List<ArticleWithSummary> findArticlesOfAuthors(List<String> authors, Page page);
   int countFeedSize(List<String> authors);
+  ArticleWithSummary findBySlug(String slug);
+  void update(ArticleWithSummary article);
+  void delete(ArticleWithSummary article);
 }
