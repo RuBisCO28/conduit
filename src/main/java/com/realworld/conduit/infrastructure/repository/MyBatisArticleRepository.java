@@ -63,4 +63,22 @@ public class MyBatisArticleRepository implements ArticleRepository {
   public int countFeedSize(List<String> authors) {
     return articleMapper.countFeedSize(authors);
   }
+
+  @Override
+  @Transactional
+  public ArticleWithSummary findBySlug(String slug) {
+    return articleMapper.findBySlug(slug);
+  }
+
+  @Override
+  @Transactional
+  public void update(ArticleWithSummary article) {
+    articleMapper.update(article);
+  }
+
+  @Override
+  @Transactional
+  public void delete(ArticleWithSummary article) {
+    articleMapper.delete(article);
+  }
 }
