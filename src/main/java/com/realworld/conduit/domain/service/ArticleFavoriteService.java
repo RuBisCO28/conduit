@@ -25,4 +25,8 @@ public class ArticleFavoriteService {
   public void remove(ArticleFavorite favorite) {
     favoriteRepository.remove(favorite);
   }
+
+  public int countByAuthorId(String articleId) {
+    return favoriteRepository.countByAuthorId(articleId);
+  }
 }

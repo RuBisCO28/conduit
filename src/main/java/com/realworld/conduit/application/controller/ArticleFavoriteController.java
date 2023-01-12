@@ -1,5 +1,6 @@
 package com.realworld.conduit.application.controller;
 
+import com.realworld.conduit.application.resource.article.SingleArticleResponse;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
 import com.realworld.conduit.domain.object.ArticleWithSummary;
 import com.realworld.conduit.domain.object.User;
@@ -28,7 +29,10 @@ public class ArticleFavoriteController {
     ArticleWithSummary article = articleService.findBySlug(slug, user).orElseThrow(
       ResourceNotFoundException::new);
     articleFavoriteService.create(article, user);
-    return ResponseEntity.ok(article);
+    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
+    final boolean isFavorited = articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent();
+    return ResponseEntity.ok(SingleArticleResponse.from(article, isFavorited, favoriteCount));
   }
 
   @DeleteMapping
@@ -43,6 +47,9 @@ public class ArticleFavoriteController {
       .ifPresent(
         articleFavoriteService::remove
       );
-    return ResponseEntity.ok(article);
+    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
+    final boolean isFavorited = articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent();
+    return ResponseEntity.ok(SingleArticleResponse.from(article, isFavorited, favoriteCount));
   }
 }

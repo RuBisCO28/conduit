@@ -10,4 +10,5 @@ public interface ArticleFavoriteMapper {
   void insert(@Param("favorite") ArticleFavorite favorite);
   Optional<ArticleFavorite> find(@Param("articleId") String ArticleId, @Param("userId") String userId);
   void delete(@Param("favorite") ArticleFavorite favorite);
+  int countByAuthorId(@Param("articleId") String articleId);
 }

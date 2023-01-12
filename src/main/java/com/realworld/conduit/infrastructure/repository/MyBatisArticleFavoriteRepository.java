@@ -30,4 +30,10 @@ public class MyBatisArticleFavoriteRepository implements ArticleFavoriteReposito
   public void remove(ArticleFavorite favorite) {
     favoriteMapper.delete(favorite);
   }
+
+  @Override
+  @Transactional
+  public int countByAuthorId(String articleId) {
+    return favoriteMapper.countByAuthorId(articleId);
+  }
 }
