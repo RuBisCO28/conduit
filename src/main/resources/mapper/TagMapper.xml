@@ -7,6 +7,9 @@
   <select id="findByName" resultType="com.realworld.conduit.domain.object.Tag">
     select id, name from tags where name = #{name}
   </select>
+  <select id="findAll" resultType="string">
+    select name from tags
+  </select>
   <resultMap id="tag" type="com.realworld.conduit.domain.object.Tag">
     <id column="id" property="id"/>
     <result column="name" property="name"/>
