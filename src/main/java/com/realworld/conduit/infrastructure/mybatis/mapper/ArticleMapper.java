@@ -10,10 +10,11 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface ArticleMapper {
   void insert(@Param("article") Article article);
-  List<String> fetchIdsByQuery(@Param("tag") String tag, @Param("author") String author, @Param("page") Page page);
-  int countByTagAndAuthor(
+  List<String> fetchIdsByQuery(@Param("tag") String tag, @Param("author") String author, @Param("favoritedBy") String favoritedBy, @Param("page") Page page);
+  int countByQuery(
     @Param("tag") String tag,
-    @Param("author") String author);
+    @Param("author") String author,
+    @Param("favoritedBy") String favoritedBy);
 
   List<ArticleWithSummary> findAllByIds(@Param("articleIds") List<String> articleIds);
   List<ArticleWithSummary> findArticlesOfAuthors(@Param("authors") List<String> authors, @Param("page") Page page);

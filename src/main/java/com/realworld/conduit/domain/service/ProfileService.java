@@ -30,4 +30,17 @@ public class ProfileService {
       return Optional.of(profile);
     }
   }
+
+  public Profile findByUserId(String userId, User currentUser) {
+    final var user = userService.findById(userId);
+    return
+      new Profile(
+        user.getId(),
+        user.getUsername(),
+        user.getBio(),
+        user.getImage(),
+        (currentUser != null)
+          && userRepository.isFollowing(currentUser.getId(), user.getId())
+      );
+  }
 }

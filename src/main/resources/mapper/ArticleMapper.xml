@@ -34,6 +34,9 @@
     articles A
     left join article_tags AT on A.id = AT.article_id
     left join tags T on T.id = AT.tag_id
+    left join article_favorites AF on AF.article_id = A.id
+    left join users AU on AU.id = A.user_id
+    left join users AFU on AFU.id = AF.user_id
   </sql>
 
   <select id="findBySlug" resultMap="ArticleWithSummary">
@@ -74,21 +77,36 @@
       <if test="tag != null">
         T.name = #{tag}
       </if>
+      <if test="author != null">
+        AND AU.username = #{author}
+      </if>
+      <if test="favoritedBy != null">
+        AND AFU.username = #{favoritedBy}
+      </if>
     </where>
     order by A.created_at desc
     limit #{page.offset}, #{page.limit}
   </select>
 
-  <select id="countByTagAndAuthor" resultType="java.lang.Integer">
+  <select id="countByQuery" resultType="java.lang.Integer">
     select
     count(DISTINCT A.id)
     from
     articles A
     left join article_tags AT on A.id = AT.article_id
     left join tags T on T.id = AT.tag_id
+    left join article_favorites AF on AF.article_id = A.id
+    left join users AU on AU.id = A.user_id
+    left join users AFU on AFU.id = AF.user_id
     <where>
       <if test="tag != null">
         T.name = #{tag}
+      </if>
+      <if test="author != null">
+        AND AU.username = #{author}
+      </if>
+      <if test="favoritedBy != null">
+        AND AFU.username = #{favoritedBy}
       </if>
     </where>
   </select>

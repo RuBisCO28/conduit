@@ -29,10 +29,10 @@ public class ArticleFavoriteController {
     ArticleWithSummary article = articleService.findBySlug(slug, user).orElseThrow(
       ResourceNotFoundException::new);
     articleFavoriteService.create(article, user);
-    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
-    final boolean isFavorited = articleFavoriteService.
-      find(article.getId(), user.getId()).isPresent();
-    return ResponseEntity.ok(SingleArticleResponse.from(article, isFavorited, favoriteCount));
+    article.setFavorited(articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent());
+    article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
+    return ResponseEntity.ok(SingleArticleResponse.from(article));
   }
 
   @DeleteMapping
@@ -47,9 +47,9 @@ public class ArticleFavoriteController {
       .ifPresent(
         articleFavoriteService::remove
       );
-    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
-    final boolean isFavorited = articleFavoriteService.
-      find(article.getId(), user.getId()).isPresent();
-    return ResponseEntity.ok(SingleArticleResponse.from(article, isFavorited, favoriteCount));
+    article.setFavorited(articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent());
+    article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
+    return ResponseEntity.ok(SingleArticleResponse.from(article));
   }
 }

@@ -1,15 +1,20 @@
 package com.realworld.conduit.application.controller;
 
+import com.realworld.conduit.application.resource.article.MultipleArticlesResponse;
 import com.realworld.conduit.application.resource.article.NewArticleRequest;
 import com.realworld.conduit.application.resource.article.PagedArticlesRequest;
+import com.realworld.conduit.application.resource.article.SingleArticleResponse;
 import com.realworld.conduit.application.resource.article.UpdateArticleRequest;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
 import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.ArticleWithSummary;
 import com.realworld.conduit.domain.object.Page;
 import com.realworld.conduit.domain.object.User;
+import com.realworld.conduit.domain.service.ArticleFavoriteService;
 import com.realworld.conduit.domain.service.ArticleService;
-import java.util.HashMap;
+import com.realworld.conduit.domain.service.ProfileService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArticlesController {
 
   private final ArticleService articleService;
+  private final ArticleFavoriteService articleFavoriteService;
+  private final ProfileService profileService;
 
   @PostMapping
   public ResponseEntity createArticle(
@@ -42,19 +49,22 @@ public class ArticlesController {
       return ResponseEntity.badRequest().body(result.getFieldErrors());
     }
     Article article = articleService.create(request, user);
-    return ResponseEntity.ok(
-      new HashMap<String, Object>() {
-        {
-          put("article", article);
-        }
-      });
+    final var profile = profileService.findByUserId(article.getUserId(), user);
+    final boolean isFavorited = articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent();
+    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
+    final var articleWithSummary = new ArticleWithSummary(article, profile, isFavorited, favoriteCount);
+    return ResponseEntity.ok(SingleArticleResponse.from(articleWithSummary));
   }
 
   @GetMapping
-  public ResponseEntity getPagedArticles(@Validated PagedArticlesRequest request) {
-    return ResponseEntity.ok(
-      articleService.findRecentArticles(request)
-    );
+  public ResponseEntity getPagedArticles(
+    @Validated PagedArticlesRequest request,
+    @AuthenticationPrincipal User user
+  ) {
+    final var recentArticles = articleService.findRecentArticles(request);
+    final var articleResponses = articleResponses(recentArticles.getArticles(), user);
+    return ResponseEntity.ok(MultipleArticlesResponse.from(articleResponses, recentArticles.getCount()));
   }
 
   @GetMapping(path = "feed")
@@ -62,15 +72,20 @@ public class ArticlesController {
     @RequestParam(value = "offset", defaultValue = "0") int offset,
     @RequestParam(value = "limit", defaultValue = "20") int limit,
     @AuthenticationPrincipal User user) {
-    return ResponseEntity.ok(articleService.findUserFeed(user, new Page(offset, limit)));
+    final var feedArticles = articleService.findUserFeed(user, new Page(offset, limit));
+    final var articleResponses = articleResponses(feedArticles.getArticles(), user);
+    return ResponseEntity.ok(MultipleArticlesResponse.from(articleResponses, feedArticles.getCount()));
   }
 
   @GetMapping("{slug}")
   public ResponseEntity getArticle(@PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
-    return articleService
+    final var article = articleService
       .findBySlug(slug, user)
-      .map(this::articleResponse)
       .orElseThrow(ResourceNotFoundException::new);
+    article.setFavorited(articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent());
+    article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
+    return ResponseEntity.ok(SingleArticleResponse.from(article));
   }
 
   @PutMapping("{slug}")
@@ -87,9 +102,10 @@ public class ArticlesController {
       .map(
         article -> {
           ArticleWithSummary updatedArticle = articleService.update(article, request);
-          return ResponseEntity.ok(
-            articleResponse(updatedArticle)
-          );
+          updatedArticle.setFavorited(articleFavoriteService.
+            find(article.getId(), user.getId()).isPresent());
+          updatedArticle.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
+          return ResponseEntity.ok(SingleArticleResponse.from(updatedArticle));
         }
       )
       .orElseThrow(ResourceNotFoundException::new);
@@ -108,12 +124,13 @@ public class ArticlesController {
       .orElseThrow(ResourceNotFoundException::new);
   }
 
-  private ResponseEntity articleResponse(ArticleWithSummary article) {
-    return ResponseEntity.ok(
-      new HashMap<String, Object>() {
-        {
-          put("article", article);
-        }
-      });
+  private List<SingleArticleResponse> articleResponses(List<ArticleWithSummary> articles, @NonNull User user) {
+    return articles.stream().map(
+      article -> {
+        article.setFavorited(articleFavoriteService.find(article.getId(), user.getId()).isPresent());
+        article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
+        return SingleArticleResponse.from(article);
+      }
+    ).collect(Collectors.toList());
   }
 }
