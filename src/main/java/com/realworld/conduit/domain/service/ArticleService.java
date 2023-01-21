@@ -48,8 +48,8 @@ public class ArticleService {
 
   public ArticlesWithCount findRecentArticles(@NonNull PagedArticlesRequest request) {
     final var page = new Page(Integer.parseInt(request.getOffset()), Integer.parseInt(request.getLimit()));
-    final List<String> articleIds = articleRepository.fetchIdsByQuery(request.getTag(), request.getAuthor(), page);
-    final int articleCount = articleRepository.countByTagAndAuthor(request.getTag(), request.getAuthor());
+    final List<String> articleIds = articleRepository.fetchIdsByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy(), page);
+    final int articleCount = articleRepository.countByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy());
     if (articleIds.size() == 0) {
       return new ArticlesWithCount(new ArrayList<>(), articleCount);
     } else {

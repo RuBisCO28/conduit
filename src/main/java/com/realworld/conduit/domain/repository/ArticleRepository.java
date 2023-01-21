@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface ArticleRepository {
   void save(Article article);
-  List<String> fetchIdsByQuery(String tag, String author, Page page);
-  int countByTagAndAuthor(String tag, String author);
+  List<String> fetchIdsByQuery(String tag, String author, String favoritedBy, Page page);
+  int countByQuery(String tag, String author, String favoritedBy);
   List<ArticleWithSummary> findAllByIds(List<String> articleIds);
   List<ArticleWithSummary> findArticlesOfAuthors(List<String> authors, Page page);
   int countFeedSize(List<String> authors);

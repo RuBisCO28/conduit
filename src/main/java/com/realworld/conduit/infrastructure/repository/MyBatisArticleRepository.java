@@ -36,14 +36,14 @@ public class MyBatisArticleRepository implements ArticleRepository {
 
   @Override
   @Transactional
-  public List<String> fetchIdsByQuery(String tag, String author, Page page) {
-    return articleMapper.fetchIdsByQuery(tag, author, page);
+  public List<String> fetchIdsByQuery(String tag, String author, String favoritedBy, Page page) {
+    return articleMapper.fetchIdsByQuery(tag, author, favoritedBy, page);
   }
 
   @Override
   @Transactional
-  public int countByTagAndAuthor(String tag, String author) {
-    return articleMapper.countByTagAndAuthor(tag, author);
+  public int countByQuery(String tag, String author, String favoritedBy) {
+    return articleMapper.countByQuery(tag, author, favoritedBy);
   }
 
   @Override

@@ -24,16 +24,17 @@ public class SingleArticleResponse {
   private String articleId;
   private Profile author;
 
-  public static SingleArticleResponse from(ArticleWithSummary article, boolean isFavorited, int favoriteCount) {
+  public static SingleArticleResponse from(ArticleWithSummary article) {
     final var response = new SingleArticleResponse();
     response.setSlug(article.getSlug());
     response.setTitle(article.getTitle());
     response.setDescription(article.getDescription());
     response.setBody(article.getBody());
+    response.setTagList(article.getTagList());
     response.setCreatedAt(article.getCreatedAt());
     response.setUpdatedAt(article.getUpdatedAt());
-    response.setFavorited(isFavorited);
-    response.setFavoriteCount(favoriteCount);
+    response.setFavorited(article.isFavorited());
+    response.setFavoriteCount(article.getFavoritesCount());
     response.setAuthor(article.getAuthorProfile());
     return response;
   }
