@@ -1,11 +1,9 @@
 package com.realworld.conduit.application.controller;
 
 import com.realworld.conduit.application.resource.user.UpdateUserRequest;
-import com.realworld.conduit.application.resource.user.UserWithToken;
+import com.realworld.conduit.application.resource.user.UserResponse;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.service.UserService;
-import java.util.HashMap;
-import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +25,8 @@ public class UserController {
   public ResponseEntity currentUser(
     @AuthenticationPrincipal User currentUser,
     @RequestHeader(value = "X-AUTH-TOKEN") String token) {
-    User user = userService.findById(currentUser.getId());
-    return ResponseEntity.ok(userResponse(new UserWithToken(user, token)));
+    final var user = userService.findById(currentUser.getId());
+    return ResponseEntity.ok(UserResponse.from(user, token));
   }
 
   @PutMapping
@@ -37,15 +35,7 @@ public class UserController {
     @RequestHeader(value = "X-AUTH-TOKEN") String token,
     @Valid @RequestBody UpdateUserRequest request) {
     userService.updateProfile(currentUser, request);
-    User user = userService.findById(currentUser.getId());
-    return ResponseEntity.ok(userResponse(new UserWithToken(user, token)));
-  }
-
-  private Map<String, Object> userResponse(UserWithToken userWithToken) {
-    return new HashMap<String, Object>() {
-      {
-        put("user", userWithToken);
-      }
-    };
+    final var user = userService.findById(currentUser.getId());
+    return ResponseEntity.ok(UserResponse.from(user, token));
   }
 }

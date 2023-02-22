@@ -1,12 +1,11 @@
 package com.realworld.conduit.application.controller;
 
+import com.realworld.conduit.application.resource.profile.ProfileResponse;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
 import com.realworld.conduit.domain.object.FollowRelation;
-import com.realworld.conduit.domain.object.Profile;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.service.ProfileService;
 import com.realworld.conduit.domain.service.UserService;
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +25,12 @@ public class ProfileController {
 
   @GetMapping
   public ResponseEntity getProfile(@PathVariable("username") String username, @AuthenticationPrincipal User user) {
-    return profileService
-      .findByUsername(username, user)
-      .map(this::profileResponse)
-      .orElseThrow(ResourceNotFoundException::new);
+    return ResponseEntity.ok(
+      profileService
+        .findByUsername(username, user)
+        .map(ProfileResponse::from)
+        .orElseThrow(ResourceNotFoundException::new)
+    );
   }
 
   @PostMapping(path = "follow")
@@ -40,7 +41,7 @@ public class ProfileController {
         target -> {
           FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
           userService.saveRelation(followRelation);
-          return profileResponse((profileService.findByUsername(username, user).get()));
+          return ResponseEntity.ok(ProfileResponse.from((profileService.findByUsername(username, user).get())));
         }
       ).orElseThrow(ResourceNotFoundException::new);
   }
@@ -54,20 +55,11 @@ public class ProfileController {
         .map(
           relation -> {
             userService.removeRelation(relation);
-            return profileResponse(profileService.findByUsername(username, user).get());
+            return ResponseEntity.ok(ProfileResponse.from(profileService.findByUsername(username, user).get()));
           }
         ).orElseThrow(ResourceNotFoundException::new);
     } else {
       throw new ResourceNotFoundException();
     }
-  }
-
-  private ResponseEntity profileResponse(Profile profile) {
-    return ResponseEntity.ok(
-      new HashMap<String, Object>() {
-        {
-          put("profile", profile);
-        }
-      });
   }
 }

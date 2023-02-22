@@ -1,6 +1,5 @@
 package com.realworld.conduit.domain.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Profile {
-  @JsonIgnore
   private String id;
   private String username;
   private String bio;
