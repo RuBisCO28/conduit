@@ -2,7 +2,7 @@ package com.realworld.conduit.domain.service;
 
 import com.realworld.conduit.domain.object.Profile;
 import com.realworld.conduit.domain.object.User;
-import com.realworld.conduit.domain.repository.UserRepository;
+import com.realworld.conduit.infrastructure.mybatis.mapper.FollowMapper;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProfileService {
   private final UserService userService;
-  private final UserRepository userRepository;
+  private final FollowMapper followMapper;
 
   public Optional<Profile> findByUsername(String username, User currentUser) {
     final var user = userService.findByName(username);
@@ -25,7 +25,7 @@ public class ProfileService {
           user.getBio(),
           user.getImage(),
           (currentUser != null)
-            && userRepository.isFollowing(currentUser.getId(), user.getId())
+            && followMapper.isUserFollowing(currentUser.getId(), user.getId())
         );
       return Optional.of(profile);
     }
@@ -40,7 +40,7 @@ public class ProfileService {
         user.getBio(),
         user.getImage(),
         (currentUser != null)
-          && userRepository.isFollowing(currentUser.getId(), user.getId())
+          && followMapper.isUserFollowing(currentUser.getId(), user.getId())
       );
   }
 }

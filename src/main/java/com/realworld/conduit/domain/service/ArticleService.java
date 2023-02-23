@@ -6,14 +6,16 @@ import com.realworld.conduit.application.resource.article.UpdateArticleRequest;
 import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.ArticleWithSummary;
 import com.realworld.conduit.domain.object.ArticlesWithCount;
+import com.realworld.conduit.domain.object.FollowRelation;
 import com.realworld.conduit.domain.object.Page;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.repository.ArticleRepository;
-import com.realworld.conduit.domain.repository.UserRepository;
+import com.realworld.conduit.infrastructure.mybatis.mapper.FollowRelationMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ArticleService {
   private final ArticleRepository articleRepository;
-  private final UserRepository userRepository;
+  private final FollowRelationMapper followRelationMapper;
 
   public Article create(@Valid NewArticleRequest request, User creator) {
     Article article =
@@ -59,7 +61,8 @@ public class ArticleService {
   }
 
   public ArticlesWithCount findUserFeed(User user, Page page) {
-    List<String> followdUsers = userRepository.followedUsers(user.getId());
+    List<String> followdUsers = followRelationMapper.followedUsers(user.getId()).stream().map(
+      FollowRelation::getTargetId).collect(Collectors.toList());
     if (followdUsers.size() == 0) {
       return new ArticlesWithCount(new ArrayList<>(), 0);
     } else {

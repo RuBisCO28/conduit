@@ -1,7 +1,7 @@
 package com.realworld.conduit.config;
 
-import com.realworld.conduit.domain.repository.UserRepository;
 import com.realworld.conduit.domain.service.JwtService;
+import com.realworld.conduit.domain.service.UserService;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public class JwtTokenFilter extends OncePerRequestFilter {
-  @Autowired private UserRepository userRepository;
+  @Autowired private UserService userService;
   @Autowired private JwtService jwtService;
   private final String header = "X-AUTH-TOKEN";
 
@@ -30,7 +30,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       .ifPresent(
         id -> {
           if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            final var user = userRepository.findById(id);
+            final var user = userService.findById(id);
             if (user != null) {
               UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(

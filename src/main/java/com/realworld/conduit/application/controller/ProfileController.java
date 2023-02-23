@@ -39,8 +39,10 @@ public class ProfileController {
       .findByUsername(username, user)
       .map(
         target -> {
-          FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
-          userService.saveRelation(followRelation);
+          if (userService.findRelation(user.getId(), target.getId()) == null) {
+            FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
+            userService.saveRelation(followRelation);
+          }
           return ResponseEntity.ok(ProfileResponse.from((profileService.findByUsername(username, user).get())));
         }
       ).orElseThrow(ResourceNotFoundException::new);
@@ -50,14 +52,11 @@ public class ProfileController {
   public ResponseEntity unfollow(@PathVariable("username") String username, @AuthenticationPrincipal User user) {
     final var targetUser = userService.findByName(username);
     if (targetUser != null) {
-      return userService
-        .findRelation(user.getId(), targetUser.getId())
-        .map(
-          relation -> {
-            userService.removeRelation(relation);
-            return ResponseEntity.ok(ProfileResponse.from(profileService.findByUsername(username, user).get()));
-          }
-        ).orElseThrow(ResourceNotFoundException::new);
+      final var relation = userService.findRelation(user.getId(), targetUser.getId());
+      if (relation != null) {
+        userService.removeRelation(relation);
+      }
+      return ResponseEntity.ok(ProfileResponse.from(profileService.findByUsername(username, user).get()));
     } else {
       throw new ResourceNotFoundException();
     }

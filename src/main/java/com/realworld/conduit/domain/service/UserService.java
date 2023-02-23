@@ -2,13 +2,11 @@ package com.realworld.conduit.domain.service;
 
 import com.realworld.conduit.application.resource.user.NewUserRequest;
 import com.realworld.conduit.application.resource.user.UpdateUserRequest;
-import com.realworld.conduit.domain.exception.DuplicatedUserCreationException;
 import com.realworld.conduit.domain.exception.InvalidAuthenticationException;
 import com.realworld.conduit.domain.object.FollowRelation;
 import com.realworld.conduit.domain.object.User;
-import com.realworld.conduit.domain.repository.UserRepository;
+import com.realworld.conduit.infrastructure.mybatis.mapper.FollowRelationMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.UserMapper;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
   private final UserMapper userMapper;
-  private final UserRepository userRepository;
+  private final FollowRelationMapper followRelationMapper;
   private final PasswordEncoder passwordEncoder;
   private final String DEFAULT_IMAGE = "https://static.productionready.io/images/smiley-cyrus.jpg";
 
@@ -70,17 +68,19 @@ public class UserService {
     userMapper.update(user);
   }
 
+  public FollowRelation findRelation(String userId, String targetId) {
+    return followRelationMapper.findRelation(userId, targetId);
+  }
+
+  @Transactional
   public void saveRelation(FollowRelation followRelation) {
-    if (!findRelation(followRelation.getUserId(), followRelation.getTargetId()).isPresent()) {
-      userRepository.saveRelation(followRelation);
+    if (findRelation(followRelation.getUserId(), followRelation.getTargetId()) == null) {
+      followRelationMapper.saveRelation(followRelation);
     }
   }
 
-  public Optional<FollowRelation> findRelation(String userId, String targetUserId) {
-    return Optional.ofNullable(userRepository.findRelation(userId, targetUserId));
-  }
-
+  @Transactional
   public void removeRelation(FollowRelation followRelation) {
-    userRepository.deleteRelation(followRelation);
+    followRelationMapper.deleteRelation(followRelation);
   }
 }
