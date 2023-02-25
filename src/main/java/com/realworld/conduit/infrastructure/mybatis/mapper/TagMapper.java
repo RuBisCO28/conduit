@@ -33,8 +33,8 @@ public interface TagMapper {
     public String insert() {
       return new SQL() {{
         INSERT_INTO("tags");
-        VALUES("id", "tag.id");
-        VALUES("name", "tag.name");
+        VALUES("id", "#{tag.id}");
+        VALUES("name", "#{tag.name}");
       }}.toString();
     }
 

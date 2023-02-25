@@ -29,12 +29,12 @@ public interface CommentMapper {
     public String insert() {
       return new SQL()
         .INSERT_INTO("comments")
-        .VALUES("id", "comment.id")
-        .VALUES("body", "comment.body")
-        .VALUES("user_id", "comment.userId")
-        .VALUES("article_id", "comment.articleId")
-        .VALUES("created_at", "comment.createdAt")
-        .VALUES("updated_at", "comment.createdAt")
+        .VALUES("id", "#{comment.id}")
+        .VALUES("body", "#{comment.body}")
+        .VALUES("user_id", "#{comment.userId}")
+        .VALUES("article_id", "#{comment.articleId}")
+        .VALUES("created_at", "#{comment.createdAt}")
+        .VALUES("updated_at", "#{comment.createdAt}")
         .toString();
     }
 

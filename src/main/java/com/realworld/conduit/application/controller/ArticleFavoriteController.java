@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArticleFavoriteController {
   private final ArticleService articleService;
   private final ArticleFavoriteService articleFavoriteService;
+
   @PostMapping
   public ResponseEntity favoriteArticle(
     @PathVariable("slug") String slug,
