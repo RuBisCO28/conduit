@@ -1,13 +1,14 @@
 package com.realworld.conduit.infrastructure.mybatis.mapper;
 
 import com.realworld.conduit.domain.object.Tag;
-import java.util.List;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.apache.ibatis.jdbc.SQL;
+
+import java.util.List;
 
 @Mapper
 public interface TagMapper {
@@ -20,6 +21,9 @@ public interface TagMapper {
 
   @SelectProvider(TagSqlBuilder.class)
   List<String> findAll();
+
+  @SelectProvider(TagSqlBuilder.class)
+  List<Tag> findByArticleId(@Param("articleId") String articleId);
 
   class TagSqlBuilder implements ProviderMethodResolver {
     public String findByName() {
@@ -43,6 +47,15 @@ public interface TagMapper {
         SELECT("name");
         FROM("tags");
       }}.toString();
+    }
+
+    public String findByArticleId() {
+      return new SQL()
+        .SELECT("tags.id, tags.name")
+        .FROM("tags")
+        .INNER_JOIN("article_tags ON tags.id = article_tags.tag_id")
+        .WHERE("article_tags.article_id = #{articleId}")
+        .toString();
     }
   }
 }

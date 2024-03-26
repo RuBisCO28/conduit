@@ -3,28 +3,30 @@ package com.realworld.conduit.domain.service;
 import com.realworld.conduit.application.resource.article.NewArticleRequest;
 import com.realworld.conduit.application.resource.article.PagedArticlesRequest;
 import com.realworld.conduit.application.resource.article.UpdateArticleRequest;
-import com.realworld.conduit.domain.object.Article;
-import com.realworld.conduit.domain.object.ArticleWithSummary;
-import com.realworld.conduit.domain.object.ArticlesWithCount;
-import com.realworld.conduit.domain.object.FollowRelation;
-import com.realworld.conduit.domain.object.Page;
-import com.realworld.conduit.domain.object.User;
-import com.realworld.conduit.domain.repository.ArticleRepository;
+import com.realworld.conduit.domain.object.*;
+import com.realworld.conduit.infrastructure.mybatis.mapper.ArticleMapper;
+import com.realworld.conduit.infrastructure.mybatis.mapper.ArticleTagMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.FollowRelationMapper;
+import com.realworld.conduit.infrastructure.mybatis.mapper.TagMapper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
-  private final ArticleRepository articleRepository;
+  private final ArticleMapper articleMapper;
+  private final TagMapper tagMapper;
+  private final ArticleTagMapper articleTagMapper;
   private final FollowRelationMapper followRelationMapper;
 
   public Article create(@Valid NewArticleRequest request, User creator) {
@@ -33,14 +35,24 @@ public class ArticleService {
         request.getTitle(),
         request.getDescription(),
         request.getBody(),
-        request.getTagList(),
         creator.getId());
-    articleRepository.save(article);
+    final var tags = request.getTagList().stream().map(Tag::new).collect(Collectors.toList());
+    for (Tag tag : tags) {
+      Tag targetTag = tagMapper.findByName(tag.getName());
+      if (targetTag == null) {
+        tagMapper.insert(tag);
+        final Tag newTag = tagMapper.findByName(tag.getName());
+        articleTagMapper.insert(article.getId(), newTag.getId());
+      } else {
+        articleTagMapper.insert(article.getId(), targetTag.getId());
+      }
+    }
+    articleMapper.insert(article);
     return article;
   }
 
-  public Optional<ArticleWithSummary> findBySlug(String slug, User user) {
-    ArticleWithSummary article = articleRepository.findBySlug(slug);
+  public Optional<Article> findBySlug(String slug, User user) {
+    final var article = articleMapper.findBySlug(slug);
     if (article == null) {
       return Optional.empty();
     } else {
@@ -50,12 +62,12 @@ public class ArticleService {
 
   public ArticlesWithCount findRecentArticles(@NonNull PagedArticlesRequest request) {
     final var page = new Page(Integer.parseInt(request.getOffset()), Integer.parseInt(request.getLimit()));
-    final List<String> articleIds = articleRepository.fetchIdsByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy(), page);
-    final int articleCount = articleRepository.countByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy());
+    final List<String> articleIds = articleMapper.findIdsByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy(), page);
+    final int articleCount = articleMapper.countByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy());
     if (articleIds.size() == 0) {
       return new ArticlesWithCount(new ArrayList<>(), articleCount);
     } else {
-      final List<ArticleWithSummary> articles = articleRepository.findAllByIds(articleIds);
+      final List<Article> articles = articleMapper.findAllByIds(articleIds);
       return new ArticlesWithCount(articles, articleCount);
     }
   }
@@ -66,13 +78,13 @@ public class ArticleService {
     if (followdUsers.size() == 0) {
       return new ArticlesWithCount(new ArrayList<>(), 0);
     } else {
-      List<ArticleWithSummary> articles = articleRepository.findArticlesOfAuthors(followdUsers, page);
-      final int count = articleRepository.countFeedSize(followdUsers);
+      List<Article> articles = articleMapper.findArticlesOfAuthors(followdUsers, page);
+      final int count = articleMapper.countFeedSize(followdUsers);
       return new ArticlesWithCount(articles, count);
     }
   }
 
-  public ArticleWithSummary update(ArticleWithSummary article, @Valid UpdateArticleRequest request) {
+  public Article update(Article article, @Valid UpdateArticleRequest request) {
     final var title = request.getTitle();
     final var description = request.getDescription();
     final var body = request.getBody();
@@ -92,12 +104,12 @@ public class ArticleService {
       article.setBody(body);
       article.setUpdatedAt(LocalDateTime.now());
     }
-    articleRepository.update(article);
+    articleMapper.update(article);
     return article;
   }
 
-  public void delete(ArticleWithSummary article) {
-    articleRepository.delete(article);
+  public void delete(Article article) {
+    articleMapper.delete(article);
   }
 }
 

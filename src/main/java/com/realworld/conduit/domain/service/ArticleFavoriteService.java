@@ -1,19 +1,20 @@
 package com.realworld.conduit.domain.service;
 
+import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.ArticleFavorite;
-import com.realworld.conduit.domain.object.ArticleWithSummary;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.infrastructure.mybatis.mapper.ArticleFavoriteMapper;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ArticleFavoriteService {
   private final ArticleFavoriteMapper articleFavoriteMapper;
 
-  public void create(ArticleWithSummary article, User user) {
+  public void create(Article article, User user) {
     ArticleFavorite favorite = new ArticleFavorite(article.getId(), user.getId());
     articleFavoriteMapper.insert(favorite);
   }
