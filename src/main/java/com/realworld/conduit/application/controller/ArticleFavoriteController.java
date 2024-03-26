@@ -2,37 +2,40 @@ package com.realworld.conduit.application.controller;
 
 import com.realworld.conduit.application.resource.article.SingleArticleResponse;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
-import com.realworld.conduit.domain.object.ArticleWithSummary;
+import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.service.ArticleFavoriteService;
 import com.realworld.conduit.domain.service.ArticleService;
+import com.realworld.conduit.domain.service.ProfileService;
+import com.realworld.conduit.domain.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/articles/{slug}/favorite")
 public class ArticleFavoriteController {
   private final ArticleService articleService;
+  private final TagService tagService;
   private final ArticleFavoriteService articleFavoriteService;
+  private final ProfileService profileService;
+
   @PostMapping
   public ResponseEntity favoriteArticle(
     @PathVariable("slug") String slug,
     @AuthenticationPrincipal User user
   ) {
-    ArticleWithSummary article = articleService.findBySlug(slug, user).orElseThrow(
+    Article article = articleService.findBySlug(slug, user).orElseThrow(
       ResourceNotFoundException::new);
     articleFavoriteService.create(article, user);
-    article.setFavorited(articleFavoriteService.
-      find(article.getId(), user.getId()).isPresent());
-    article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
-    return ResponseEntity.ok(SingleArticleResponse.from(article));
+    final var tags = tagService.findByArticleId(article.getId());
+    final var profile = profileService.findByUserId(article.getUserId(), user);
+    final boolean isFavorited = articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent();
+    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
+    return ResponseEntity.ok(SingleArticleResponse.from(article, tags, isFavorited, favoriteCount, profile));
   }
 
   @DeleteMapping
@@ -40,16 +43,18 @@ public class ArticleFavoriteController {
     @PathVariable("slug") String slug,
     @AuthenticationPrincipal User user
   ) {
-    ArticleWithSummary article = articleService.findBySlug(slug, user).orElseThrow(
+    Article article = articleService.findBySlug(slug, user).orElseThrow(
       ResourceNotFoundException::new);
     articleFavoriteService
       .find(article.getId(), user.getId())
       .ifPresent(
         articleFavoriteService::remove
       );
-    article.setFavorited(articleFavoriteService.
-      find(article.getId(), user.getId()).isPresent());
-    article.setFavoritesCount(articleFavoriteService.countByAuthorId(article.getId()));
-    return ResponseEntity.ok(SingleArticleResponse.from(article));
+    final var tags = tagService.findByArticleId(article.getId());
+    final var profile = profileService.findByUserId(article.getUserId(), user);
+    final boolean isFavorited = articleFavoriteService.
+      find(article.getId(), user.getId()).isPresent();
+    final int favoriteCount = articleFavoriteService.countByAuthorId(article.getId());
+    return ResponseEntity.ok(SingleArticleResponse.from(article, tags, isFavorited, favoriteCount, profile));
   }
 }

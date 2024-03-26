@@ -1,12 +1,11 @@
 package com.realworld.conduit.application.controller;
 
+import com.realworld.conduit.application.resource.profile.ProfileResponse;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
 import com.realworld.conduit.domain.object.FollowRelation;
-import com.realworld.conduit.domain.object.Profile;
 import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.domain.service.ProfileService;
 import com.realworld.conduit.domain.service.UserService;
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +25,12 @@ public class ProfileController {
 
   @GetMapping
   public ResponseEntity getProfile(@PathVariable("username") String username, @AuthenticationPrincipal User user) {
-    return profileService
-      .findByUsername(username, user)
-      .map(this::profileResponse)
-      .orElseThrow(ResourceNotFoundException::new);
+    return ResponseEntity.ok(
+      profileService
+        .findByUsername(username, user)
+        .map(ProfileResponse::from)
+        .orElseThrow(ResourceNotFoundException::new)
+    );
   }
 
   @PostMapping(path = "follow")
@@ -38,9 +39,11 @@ public class ProfileController {
       .findByUsername(username, user)
       .map(
         target -> {
-          FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
-          userService.saveRelation(followRelation);
-          return profileResponse((profileService.findByUsername(username, user).get()));
+          if (userService.findRelation(user.getId(), target.getId()) == null) {
+            FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
+            userService.saveRelation(followRelation);
+          }
+          return ResponseEntity.ok(ProfileResponse.from((profileService.findByUsername(username, user).get())));
         }
       ).orElseThrow(ResourceNotFoundException::new);
   }
@@ -49,25 +52,13 @@ public class ProfileController {
   public ResponseEntity unfollow(@PathVariable("username") String username, @AuthenticationPrincipal User user) {
     final var targetUser = userService.findByName(username);
     if (targetUser != null) {
-      return userService
-        .findRelation(user.getId(), targetUser.getId())
-        .map(
-          relation -> {
-            userService.removeRelation(relation);
-            return profileResponse(profileService.findByUsername(username, user).get());
-          }
-        ).orElseThrow(ResourceNotFoundException::new);
+      final var relation = userService.findRelation(user.getId(), targetUser.getId());
+      if (relation != null) {
+        userService.removeRelation(relation);
+      }
+      return ResponseEntity.ok(ProfileResponse.from(profileService.findByUsername(username, user).get()));
     } else {
       throw new ResourceNotFoundException();
     }
-  }
-
-  private ResponseEntity profileResponse(Profile profile) {
-    return ResponseEntity.ok(
-      new HashMap<String, Object>() {
-        {
-          put("profile", profile);
-        }
-      });
   }
 }

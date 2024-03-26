@@ -18,3 +18,13 @@ mybatis:
     use-generated-keys: true
   type-handlers-package: com.realworld.conduit.infrastructure.mybatis
   mapper-locations: mapper/*.xml
+logging:
+  level:
+    org:
+      springframework: WARN
+    com:
+      realworld:
+        conduit:
+          infrastructure:
+            mybatis:
+              mapper: DEBUG
