@@ -19,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtTokenFilter extends OncePerRequestFilter {
   @Autowired private UserService userService;
   @Autowired private JwtService jwtService;
-  private final static String header = "X-AUTH-TOKEN";
+  private static final String header = "X-AUTH-TOKEN";
 
   @Override
   protected void doFilterInternal(

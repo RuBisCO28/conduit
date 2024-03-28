@@ -18,7 +18,7 @@ public class UserService {
   private final UserMapper userMapper;
   private final FollowRelationMapper followRelationMapper;
   private final PasswordEncoder passwordEncoder;
-  private final static String DEFAULT_IMAGE = "https://static.productionready.io/images/smiley-cyrus.jpg";
+  private static final String DEFAULT_IMAGE = "https://static.productionready.io/images/smiley-cyrus.jpg";
 
   public User findByEmail(String email) {
     final var user = userMapper.findByEmail(email);
