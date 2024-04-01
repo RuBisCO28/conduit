@@ -7,6 +7,12 @@ spring:
   jackson:
     deserialization:
       UNWRAP_ROOT_VALUE: true
+  flyway:
+    enabled: true
+    url: ${SPRING_DATASOURCE_URL}
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   sessionTime: 86400
