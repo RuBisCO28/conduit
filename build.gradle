@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.18'
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'java'
+  id 'org.flywaydb.flyway' version "10.0.0"
 }
 
 group = 'com.realworld'
@@ -34,6 +35,8 @@ dependencies {
     'io.jsonwebtoken:jjwt-jackson:0.11.2'
 	compileOnly 'org.projectlombok:lombok'
   annotationProcessor 'org.projectlombok:lombok'
+  implementation 'org.flywaydb:flyway-core:10.0.0'
+  implementation 'org.flywaydb:flyway-mysql:10.0.0'
   runtimeOnly 'com.mysql:mysql-connector-j'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
