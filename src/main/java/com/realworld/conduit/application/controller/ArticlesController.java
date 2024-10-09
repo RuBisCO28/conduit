@@ -1,6 +1,10 @@
 package com.realworld.conduit.application.controller;
 
-import com.realworld.conduit.application.resource.article.*;
+import com.realworld.conduit.application.resource.article.MultipleArticlesResponse;
+import com.realworld.conduit.application.resource.article.NewArticleRequest;
+import com.realworld.conduit.application.resource.article.PagedArticlesRequest;
+import com.realworld.conduit.application.resource.article.SingleArticleResponse;
+import com.realworld.conduit.application.resource.article.UpdateArticleRequest;
 import com.realworld.conduit.domain.exception.ResourceNotFoundException;
 import com.realworld.conduit.domain.object.Article;
 import com.realworld.conduit.domain.object.Page;
@@ -9,16 +13,23 @@ import com.realworld.conduit.domain.service.ArticleFavoriteService;
 import com.realworld.conduit.domain.service.ArticleService;
 import com.realworld.conduit.domain.service.ProfileService;
 import com.realworld.conduit.domain.service.TagService;
-import lombok.NonNull;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +45,7 @@ public class ArticlesController {
   public ResponseEntity createArticle(
     @RequestBody @Validated NewArticleRequest request,
     @AuthenticationPrincipal User user,
-    @NonNull BindingResult result) {
+    @Nonnull BindingResult result) {
     if (result.hasErrors()) {
       return ResponseEntity.badRequest().body(result.getFieldErrors());
     }
@@ -84,7 +95,7 @@ public class ArticlesController {
     @PathVariable("slug") String slug,
     @AuthenticationPrincipal User user,
     @RequestBody @Validated UpdateArticleRequest request,
-    @NonNull BindingResult result) {
+    @Nonnull BindingResult result) {
     if (result.hasErrors()) {
       return ResponseEntity.badRequest().body(result.getFieldErrors());
     }
@@ -116,7 +127,7 @@ public class ArticlesController {
       .orElseThrow(ResourceNotFoundException::new);
   }
 
-  private List<SingleArticleResponse> articleResponses(List<Article> articles, @NonNull User user) {
+  private List<SingleArticleResponse> articleResponses(List<Article> articles, @Nonnull User user) {
     return articles.stream().map(
       article -> {
         final var tags = tagService.findByArticleId(article.getId());

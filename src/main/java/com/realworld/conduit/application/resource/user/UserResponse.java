@@ -3,6 +3,7 @@ package com.realworld.conduit.application.resource.user;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.realworld.conduit.domain.object.User;
+import javax.annotation.Nonnull;
 import lombok.Data;
 
 @Data
@@ -15,7 +16,7 @@ public class UserResponse {
   private String bio;
   private String image;
 
-  public static UserResponse from(User user, String token) {
+  public static UserResponse from(@Nonnull User user, @Nonnull String token) {
     final var response = new UserResponse();
     response.setEmail(user.getEmail());
     response.setToken(token);

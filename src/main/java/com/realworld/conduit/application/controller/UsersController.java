@@ -6,7 +6,7 @@ import com.realworld.conduit.application.resource.user.UserResponse;
 import com.realworld.conduit.domain.exception.InvalidAuthenticationException;
 import com.realworld.conduit.domain.service.JwtService;
 import com.realworld.conduit.domain.service.UserService;
-import lombok.NonNull;
+import javax.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +26,7 @@ public class UsersController {
   private final JwtService jwtService;
 
   @PostMapping("login")
-  public ResponseEntity userLogin(@Validated @RequestBody LoginUserRequest request, @NonNull BindingResult result) {
+  public ResponseEntity userLogin(@Validated @RequestBody LoginUserRequest request, @Nonnull BindingResult result) {
     if (result.hasErrors()) {
       return ResponseEntity.badRequest().body(result.getFieldErrors());
     }
@@ -39,7 +39,7 @@ public class UsersController {
   }
 
   @PostMapping
-  public ResponseEntity createUser(@Validated @RequestBody NewUserRequest request, @NonNull BindingResult result) {
+  public ResponseEntity createUser(@Validated @RequestBody NewUserRequest request, @Nonnull BindingResult result) {
     if (result.hasErrors()) {
       return ResponseEntity.badRequest().body(result.getFieldErrors());
     }
