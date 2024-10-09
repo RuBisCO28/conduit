@@ -3,22 +3,26 @@ package com.realworld.conduit.domain.service;
 import com.realworld.conduit.application.resource.article.NewArticleRequest;
 import com.realworld.conduit.application.resource.article.PagedArticlesRequest;
 import com.realworld.conduit.application.resource.article.UpdateArticleRequest;
-import com.realworld.conduit.domain.object.*;
+import com.realworld.conduit.domain.object.Article;
+import com.realworld.conduit.domain.object.ArticlesWithCount;
+import com.realworld.conduit.domain.object.FollowRelation;
+import com.realworld.conduit.domain.object.Page;
+import com.realworld.conduit.domain.object.Tag;
+import com.realworld.conduit.domain.object.User;
 import com.realworld.conduit.infrastructure.mybatis.mapper.ArticleMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.ArticleTagMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.FollowRelationMapper;
 import com.realworld.conduit.infrastructure.mybatis.mapper.TagMapper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -60,7 +64,7 @@ public class ArticleService {
     }
   }
 
-  public ArticlesWithCount findRecentArticles(@NonNull PagedArticlesRequest request) {
+  public ArticlesWithCount findRecentArticles(@Nonnull PagedArticlesRequest request) {
     final var page = new Page(Integer.parseInt(request.getOffset()), Integer.parseInt(request.getLimit()));
     final List<String> articleIds = articleMapper.findIdsByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy(), page);
     final int articleCount = articleMapper.countByQuery(request.getTag(), request.getAuthor(), request.getFavoritedBy());
